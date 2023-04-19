@@ -30,13 +30,11 @@ public class StockDataRest {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.TEXT_PLAIN)
     public Stock getStockById(@PathParam("id") ObjectId id) {
         return stockRepository.findStockById(id).orElseThrow();
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
     public List<Stock> getAllStock() {
         return stockRepository.listAll();
     }

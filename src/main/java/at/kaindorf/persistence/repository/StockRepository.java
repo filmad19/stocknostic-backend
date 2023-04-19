@@ -10,7 +10,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class StockRepository implements PanacheMongoRepository<Stock> {
 
-    public Stock findByName(String name){
+    public Stock findStockByName(String name){
         return find("name", name).firstResult();
     }
 

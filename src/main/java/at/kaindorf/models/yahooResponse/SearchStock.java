@@ -1,16 +1,15 @@
-package at.kaindorf.models;
+package at.kaindorf.models.yahooResponse;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SymbolSearchResponse {
-    @JsonAlias("bestMatches")
-    public ArrayList<StockListItem> stocks;
+public class SearchStock {
+    private String symbol;
+    @JsonAlias("shortname")
+    private String companyName;
 }

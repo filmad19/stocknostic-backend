@@ -4,8 +4,6 @@ import at.kaindorf.models.Stock;
 import at.kaindorf.models.yahooResponse.SearchStock;
 import at.kaindorf.models.PricePoint;
 import at.kaindorf.rest.YahooFinanceClient;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

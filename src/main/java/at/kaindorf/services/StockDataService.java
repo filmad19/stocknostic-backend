@@ -28,7 +28,7 @@ public class StockDataService {
     YahooFinanceClient yahooFinanceClient;
 
 
-    private static ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); //ignore json values not used in java;
 
@@ -47,8 +47,6 @@ public class StockDataService {
                     .map(searchStock -> getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d").setCompanyName(searchStock.getCompanyName()))
                     .toList();
 
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -72,14 +70,6 @@ public class StockDataService {
 
 
             return new Stock(symbol, currency, previousClosePrice, getPricePointList(rootNode));
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -93,14 +83,6 @@ public class StockDataService {
             JsonNode rootNode = mapper.readTree(responseBody).get("chart").get("result").get(0);
             return getPricePointList(rootNode);
 
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        } catch (StreamReadException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -41,8 +41,12 @@ public class StockDataService {
 
             return mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){})
                     .stream()
-//                    convert to Stock object --> get history and meta data             --> set interval and range  --> set company name from searchStock object
-                    .map(searchStock -> getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d").setCompanyName(searchStock.getCompanyName()))
+//                    convert to Stock object --> get history and meta data
+                    .map(searchStock ->
+//                            --> set interval and range
+                        getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d")
+//                                --> set company name from searchStock object
+                                .setCompanyName(searchStock.getCompanyName()))
                     .toList();
 
         } catch (IOException e) {
@@ -89,6 +93,8 @@ public class StockDataService {
     private List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
+        if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>();
+
         //convert timestamps to list of DateTime
         List<LocalDateTime> timestampList = mapper.readValue(timestampNode.traverse(), new TypeReference<List<Integer>>(){})
                 .stream()
@@ -106,11 +112,6 @@ public class StockDataService {
         for(int i = 0; i < timestampList.size(); i++){
             pricePointList.add(new PricePoint(timestampList.get(i), closeList.get(i)));
         }
-
-//            JsonNode openNode = quoteNode.get("open");
-//            JsonNode lowNode = quoteNode.get("low");
-//            JsonNode highNode = quoteNode.get("high");
-//            JsonNode volumeNode = quoteNode.get("volume");
 
         return pricePointList;
     }

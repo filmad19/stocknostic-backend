@@ -19,6 +19,9 @@ public class StockDataRest {
     @GET
     @Path("/search")
     public List<Stock> searchStocks(@QueryParam("q") String searchString) {
+
+        if(searchString.length() == 0) searchString = "a";
+
         return stockDataService.searchStocks(searchString);
     }
 

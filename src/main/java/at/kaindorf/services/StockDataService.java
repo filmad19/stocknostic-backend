@@ -3,6 +3,7 @@ package at.kaindorf.services;
 import at.kaindorf.models.Stock;
 import at.kaindorf.models.yahooResponse.SearchStock;
 import at.kaindorf.models.PricePoint;
+import at.kaindorf.persistence.repository.UserRepository;
 import at.kaindorf.rest.YahooFinanceClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.Instant;
@@ -25,6 +27,9 @@ public class StockDataService {
     @RestClient
     YahooFinanceClient yahooFinanceClient;
 
+    @Inject
+    UserRepository userRepository;
+
 
     private static final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -32,7 +37,7 @@ public class StockDataService {
 
 
 
-    public List<Stock> searchStocks(String search){
+    public List<Stock> searchStocks(String search, String token){
         Response response = yahooFinanceClient.search(search);
         String responseBody = response.readEntity(String.class);
 
@@ -43,9 +48,9 @@ public class StockDataService {
                     .stream()
 //                    convert to Stock object --> get history and meta data
                     .map(searchStock ->
-//                            --> set interval and range
-                        getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d")
-//                                --> set company name from searchStock object
+//                            --> List interval and range
+                        getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d", token)
+//                                --> List company name from searchStock object
                                 .setCompanyName(searchStock.getCompanyName()))
                     .toList();
 
@@ -54,7 +59,7 @@ public class StockDataService {
         }
     }
 
-    public Stock getStockPriceHistoryAndMeta(String symbol, String interval, String range){
+    public Stock getStockPriceHistoryAndMeta(String symbol, String interval, String range, String token){
         Response response = yahooFinanceClient.stockData(symbol, interval, range);
         String responseBody = response.readEntity(String.class);
 
@@ -68,16 +73,21 @@ public class StockDataService {
             String currency = mapper.readValue(currencyNode.traverse(), new TypeReference<String>(){});
 
             JsonNode previousClosePriceNode = metaNode.get("chartPreviousClose");
-            Double previousClosePrice = mapper.readValue(previousClosePriceNode.traverse(), new TypeReference<Double>(){});
 
+            Double previousClosePrice = 0.0;
+            if(previousClosePriceNode != null){
+                previousClosePrice = mapper.readValue(previousClosePriceNode.traverse(), new TypeReference<Double>(){});
+            }
 
-            return new Stock(symbol, currency, previousClosePrice, getPricePointList(rootNode));
+            Boolean isLiked = userRepository.isLiked(symbol, token);
+
+            return new Stock(symbol, isLiked, currency, previousClosePrice, getPricePointList(rootNode));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<PricePoint> getStockPriceHistory(String symbol, String interval, String range){
+    public List<PricePoint> getStockPriceHistory(String symbol, String interval, String range, String token){
         Response response = yahooFinanceClient.stockData(symbol, interval, range);
         String responseBody = response.readEntity(String.class);
 
@@ -90,7 +100,7 @@ public class StockDataService {
         }
     }
 
-    private List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
+    public List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
         if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>();

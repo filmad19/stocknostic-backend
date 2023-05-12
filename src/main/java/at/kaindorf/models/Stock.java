@@ -17,8 +17,9 @@ public class Stock {
     private Double previousClosePrice;
     private List<PricePoint> pricePointList;
 
-    public Stock(String symbol, String currency, Double previousClosePrice, List<PricePoint> pricePointList) {
+    public Stock(String symbol, Boolean liked, String currency, Double previousClosePrice, List<PricePoint> pricePointList) {
         this.symbol = symbol;
+        this.liked = liked;
         this.currency = currency;
         this.previousClosePrice = previousClosePrice;
         this.pricePointList = pricePointList;

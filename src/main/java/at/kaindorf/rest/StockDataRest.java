@@ -43,8 +43,7 @@ public class StockDataRest {
     @Path("/history/{symbol}")
     public List<PricePoint> getPriceHistory(@PathParam("symbol") String symbol,
                                             @QueryParam("interval") String interval,
-                                            @QueryParam("range") String range,
-                                            @HeaderParam("access_token") String token) {
-        return stockDataService.getStockPriceHistory(symbol, interval, range, token);
+                                            @QueryParam("range") String range) {
+        return stockDataService.getStockPriceHistory(symbol, interval, range);
     }
 }

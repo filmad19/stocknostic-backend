@@ -15,10 +15,8 @@ public class FavouriteService {
     @Inject
     StockDataService stockDataService;
 
-
     public List<Stock> getFavouriteStockList(String token){
         List<String> symbolList = userRepository.getLikedSymbolsList(token);
-
 
         List<Stock> stockList = symbolList.stream()
                 .map(symbol -> stockDataService.getStockPriceHistoryAndMeta(symbol, "5m", "1d", token))

@@ -87,7 +87,7 @@ public class StockDataService {
         }
     }
 
-    public List<PricePoint> getStockPriceHistory(String symbol, String interval, String range, String token){
+    public List<PricePoint> getStockPriceHistory(String symbol, String interval, String range){
         Response response = yahooFinanceClient.stockData(symbol, interval, range);
         String responseBody = response.readEntity(String.class);
 
@@ -100,7 +100,7 @@ public class StockDataService {
         }
     }
 
-    public List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
+    private List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
         if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>();

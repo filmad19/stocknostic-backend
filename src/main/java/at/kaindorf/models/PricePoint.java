@@ -1,6 +1,5 @@
 package at.kaindorf.models;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +15,7 @@ public class PricePoint {
 //    private Double low;
     private Double close;
 //    private Long volume;
+    private Double rsi;
 
 
     public PricePoint(LocalDateTime timestamp, Double close) {

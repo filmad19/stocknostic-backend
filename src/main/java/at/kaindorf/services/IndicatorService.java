@@ -12,7 +12,7 @@ public class IndicatorService {
     @Inject
     StockDataService stockDataService;
 
-    public List<PricePoint> calculateRSI(String symbol) {
+    public PricePoint calculateRSI(String symbol) {
 
         List<PricePoint> pricePointList = stockDataService.getStockPriceHistory(symbol, "1d", "34d");
 
@@ -45,22 +45,22 @@ public class IndicatorService {
             pricePointList.get(i).setRsi(rsi);
         }
 
-        return pricePointList;
+        return pricePointList.get(pricePointList.size()-1);
     }
 
 
-    public String getRecommendation(String symbol){
-        List<PricePoint> pricePointList = calculateRSI(symbol);
-        PricePoint pricePoint = pricePointList.get(pricePointList.size()-1);
-
-        double rsi = pricePoint.getRsi();
-
-        if (rsi > 80) {
-            return "SELL";
-        } else if (rsi < 20) {
-            return "BUY";
-        }
-
-        return "HOLD";
-    }
+//    public PricePoint getRecommendation(String symbol){
+//        List<PricePoint> pricePointList = calculateRSI(symbol);
+//        PricePoint pricePoint = pricePointList.get(pricePointList.size()-1);
+//
+//        double rsi = pricePoint.getRsi();
+//
+//        if (rsi > 80) {
+//            return pricePoint.setRsi();
+//        } else if (rsi < 20) {
+//            return "BUY";
+//        }
+//
+//        return "HOLD";
+//    }
 }

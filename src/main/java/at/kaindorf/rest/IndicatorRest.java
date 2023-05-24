@@ -10,6 +10,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/indicator")
@@ -19,17 +20,17 @@ public class IndicatorRest {
     @Inject
     IndicatorService indicatorService;
 
-    @GET
-    @Path("/recommendation")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getRecommendation(@QueryParam("symbol") String symbol){
-        return indicatorService.getRecommendation(symbol);
-    }
+//    @GET
+//    @Path("/recommendation")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response getRecommendation(@QueryParam("symbol") String symbol){
+//        return Response.ok(indicatorService.getRecommendation(symbol)).build();
+//    }
 
     @GET
     @Path("/rsi")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PricePoint> calculateRSI(@QueryParam("symbol") String symbol){
+    public PricePoint calculateRSI(@QueryParam("symbol") String symbol){
         return indicatorService.calculateRSI(symbol);
     }
 }

@@ -2,6 +2,7 @@ package at.kaindorf.services;
 
 import at.kaindorf.models.Token;
 import at.kaindorf.persistence.repository.UserRepository;
+import io.quarkus.security.UnauthorizedException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -23,8 +24,17 @@ public class UserService {
             RANDOM.nextBytes(bytes);
             generatedToken = HexFormat.of().formatHex(bytes);
 
-        } while(userRepository.findUserByAccessToken(generatedToken) != null);
+        } while(userExists(generatedToken));
 
         return new Token(userRepository.addUser(generatedToken));
+    }
+
+    private Boolean userExists(String generatedToken){
+        try{
+            userRepository.findUserByAccessToken(generatedToken);
+            return true;
+        }catch (UnauthorizedException e){
+            return false;
+        }
     }
 }

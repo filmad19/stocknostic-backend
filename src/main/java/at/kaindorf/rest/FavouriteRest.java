@@ -2,6 +2,7 @@ package at.kaindorf.rest;
 
 import at.kaindorf.models.Stock;
 import at.kaindorf.services.FavouriteService;
+import io.quarkus.security.UnauthorizedException;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -18,19 +19,32 @@ public class FavouriteRest {
     FavouriteService favouriteService;
 
     @GET
-    public List<Stock> getFavouriteStockList(@HeaderParam("access_token") String token){
-        return favouriteService.getFavouriteStockList(token);
+    public Response getFavouriteStockList(@HeaderParam("access_token") String token){
+        try {
+            List<Stock> stockList = favouriteService.getFavouriteStockList(token);
+            return Response.ok(stockList).build();
+        } catch (UnauthorizedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
 
     @POST
     public Response addStockToFavourite(@HeaderParam("access_token") String token, String symbol){
-        favouriteService.addStockToFavourite(symbol, token);
-        return Response.ok().build();
+        try {
+            favouriteService.addStockToFavourite(symbol, token);
+            return Response.ok().build();
+        } catch (UnauthorizedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
 
     @DELETE
     public Response removeStockFromFavourite(@HeaderParam("access_token") String token, @QueryParam("symbol") String symbol){
-        favouriteService.removeStockFromFavourite(symbol, token);
-        return Response.accepted().build();
+        try {
+            favouriteService.removeStockFromFavourite(symbol, token);
+            return Response.accepted().build();
+        } catch (UnauthorizedException e) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
 }

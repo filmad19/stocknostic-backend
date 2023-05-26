@@ -2,6 +2,7 @@ package at.kaindorf.persistence.repository;
 
 import at.kaindorf.persistence.entity.User;
 import io.quarkus.mongodb.panache.PanacheMongoRepository;
+import io.quarkus.security.UnauthorizedException;
 
 import javax.enterprise.context.RequestScoped;
 import java.util.List;
@@ -10,7 +11,13 @@ import java.util.List;
 public class UserRepository implements PanacheMongoRepository<User> {
 
     public User findUserByAccessToken(String userAccessToken){
-        return find("accessToken", userAccessToken).firstResult();
+        User user = find("accessToken", userAccessToken).firstResult();
+
+        if(user == null){
+            throw new UnauthorizedException();
+        }
+
+        return user;
     }
 
     public String addUser(String generatedToken) {

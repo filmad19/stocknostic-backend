@@ -1,6 +1,6 @@
 package at.kaindorf.services;
 
-import at.kaindorf.models.PricePoint;
+import at.kaindorf.models.PricePointDto;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -12,20 +12,20 @@ public class IndicatorService {
     @Inject
     StockDataService stockDataService;
 
-    public PricePoint calculateRSI(String symbol) {
+    public PricePointDto calculateRSI(String symbol) {
 
-        List<PricePoint> pricePointList = stockDataService.getStockPriceHistory(symbol, "1d", "34d");
+        List<PricePointDto> pricePointDtoList = stockDataService.getStockPriceHistory(symbol, "1d", "34d");
 
         int windowSize = 14;
 
         // Calculate RSI for each PricePoint
-        for (int i = windowSize; i < pricePointList.size(); i++) {
+        for (int i = windowSize; i < pricePointDtoList.size(); i++) {
             double sumGain = 0;
             double sumLoss = 0;
 
             // Calculate average gain and loss over the last 14 PricePoints
             for (int j = i - windowSize + 1; j <= i; j++) {
-                double priceDifference = pricePointList.get(j).getClose() - pricePointList.get(j - 1).getClose();
+                double priceDifference = pricePointDtoList.get(j).getClose() - pricePointDtoList.get(j - 1).getClose();
 
                 if (priceDifference >= 0) {
                     sumGain += priceDifference;
@@ -42,25 +42,9 @@ public class IndicatorService {
             double rsi = 100 - (100 / (1 + rs));
 
             // Set the calculated RSI value for the current PricePoint
-            pricePointList.get(i).setRsi(rsi);
+            pricePointDtoList.get(i).setRsi(rsi);
         }
 
-        return pricePointList.get(pricePointList.size()-1);
+        return pricePointDtoList.get(pricePointDtoList.size()-1);
     }
-
-
-//    public PricePoint getRecommendation(String symbol){
-//        List<PricePoint> pricePointList = calculateRSI(symbol);
-//        PricePoint pricePoint = pricePointList.get(pricePointList.size()-1);
-//
-//        double rsi = pricePoint.getRsi();
-//
-//        if (rsi > 80) {
-//            return pricePoint.setRsi();
-//        } else if (rsi < 20) {
-//            return "BUY";
-//        }
-//
-//        return "HOLD";
-//    }
 }

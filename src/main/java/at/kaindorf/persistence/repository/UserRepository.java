@@ -1,53 +1,78 @@
 package at.kaindorf.persistence.repository;
 
-import at.kaindorf.persistence.entity.User;
-import io.quarkus.mongodb.panache.PanacheMongoRepository;
+import at.kaindorf.models.StockDto;
+import at.kaindorf.persistence.entity.StockEntity;
+import at.kaindorf.persistence.entity.UserEntity;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.security.UnauthorizedException;
 
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RequestScoped
-public class UserRepository implements PanacheMongoRepository<User> {
+public class UserRepository implements PanacheRepository<UserEntity> {
 
-    public User findUserByAccessToken(String userAccessToken){
-        User user = find("accessToken", userAccessToken).firstResult();
+    @Inject
+    StockRepository stockRepository;
 
-        if(user == null){
+    public UserEntity findUserByAccessToken(String userAccessToken){
+        UserEntity userEntity = find("accessToken", userAccessToken).firstResult();
+
+        if(userEntity == null){
             throw new UnauthorizedException();
         }
 
-        return user;
+        return userEntity;
     }
 
+
+    @Transactional
     public String addUser(String generatedToken) {
-        User user = new User(generatedToken);
+        UserEntity userEntity = new UserEntity(generatedToken);
 
-        persist(user);
-        return user.getAccessToken();
+        persist(userEntity);
+        return userEntity.getAccessToken();
     }
 
-    public Boolean isLiked(String symbol, String userAccessToken){
-        User user = findUserByAccessToken(userAccessToken);
 
-        return user.getLikedSymbolsList().contains(symbol);
+    public Boolean isLiked(StockDto stockDto, String userAccessToken){
+        UserEntity userEntity = findUserByAccessToken(userAccessToken);
+
+        return userEntity.getLikedStocksList().stream()
+                .map(StockDto::new)
+                .toList()
+                .contains(stockDto);
     }
 
-    public List<String> getLikedSymbolsList(String userAccessToken){
-        User user = findUserByAccessToken(userAccessToken);
 
-        return user.getLikedSymbolsList();
+    public List<StockDto> getLikedStocksList(String userAccessToken){
+        UserEntity userEntity = findUserByAccessToken(userAccessToken);
+
+        return userEntity.getLikedStocksList().stream()
+                .map(StockDto::new)
+                .toList();
     }
 
-    public void addStockToFavourite(String symbol, String token){
-        User user = findUserByAccessToken(token);
-        user.addSymbol(symbol);
-        update(user);
+
+    @Transactional
+    public void addStockToFavourite(StockDto stockDto, String token){
+        UserEntity userEntity = findUserByAccessToken(token);
+
+        StockEntity stockEntity = stockRepository.addStock(stockDto);
+        userEntity.getLikedStocksList().add(stockEntity);
+
+        persist(userEntity);
     }
 
+    @Transactional
     public void removeStockFromFavourite(String symbol, String token){
-        User user = findUserByAccessToken(token);
-        user.removeSymbol(symbol);
-        update(user);
+        UserEntity userEntity = findUserByAccessToken(token);
+
+        userEntity.getLikedStocksList().removeIf(stockEntity -> stockEntity.getSymbol().equals(symbol));
+        persist(userEntity);
     }
 }

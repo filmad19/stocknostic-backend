@@ -1,6 +1,6 @@
 package at.kaindorf.rest;
 
-import at.kaindorf.models.PricePoint;
+import at.kaindorf.models.PricePointDto;
 import at.kaindorf.services.IndicatorService;
 
 import javax.enterprise.context.RequestScoped;
@@ -10,8 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("/indicator")
 @RequestScoped
@@ -30,7 +28,7 @@ public class IndicatorRest {
     @GET
     @Path("/rsi")
     @Produces(MediaType.APPLICATION_JSON)
-    public PricePoint calculateRSI(@QueryParam("symbol") String symbol){
+    public PricePointDto calculateRSI(@QueryParam("symbol") String symbol){
         return indicatorService.calculateRSI(symbol);
     }
 }

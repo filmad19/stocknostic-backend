@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 //@AllArgsConstructor
 @NoArgsConstructor
-public class PricePoint {
+public class PricePointDto {
     private LocalDateTime timestamp;
 //    private Double open;
 //    private Double high;
@@ -18,7 +18,7 @@ public class PricePoint {
     private Double rsi;
 
 
-    public PricePoint(LocalDateTime timestamp, Double close) {
+    public PricePointDto(LocalDateTime timestamp, Double close) {
         this.timestamp = timestamp;
         this.close = close;
     }

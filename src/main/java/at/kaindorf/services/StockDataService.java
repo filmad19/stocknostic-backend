@@ -1,8 +1,8 @@
 package at.kaindorf.services;
 
-import at.kaindorf.models.Stock;
+import at.kaindorf.models.StockDto;
 import at.kaindorf.models.yahooResponse.SearchStock;
-import at.kaindorf.models.PricePoint;
+import at.kaindorf.models.PricePointDto;
 import at.kaindorf.persistence.repository.UserRepository;
 import at.kaindorf.rest.YahooFinanceClient;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,37 +30,51 @@ public class StockDataService {
     @Inject
     UserRepository userRepository;
 
+    @Inject
+    FavouriteService favouriteService;
+
 
     private static final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); //ignore json values not used in java;
 
+    public List<StockDto> searchStocks(String searchString, String token){
 
+        List<StockDto> stockDtoList = new ArrayList<>();
 
-    public List<Stock> searchStocks(String search, String token){
-        Response response = yahooFinanceClient.search(search);
+        //if the search field is empty
+        if(searchString.isBlank()){
+            stockDtoList.addAll(favouriteService.getFavouriteStockList(token));
+
+            if(stockDtoList.size() > 3){
+                return stockDtoList;
+            }
+
+            searchString = "a";
+        }
+
+        Response response = yahooFinanceClient.search(searchString);
+
         String responseBody = response.readEntity(String.class);
 
         try {
             JsonNode quotesNode = mapper.readTree(responseBody).get("quotes");
 
-            return mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){})
-                    .stream()
+            stockDtoList.addAll(mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){}).stream()
+//                    filter out stocks, which are already there
+                    .filter(searchStock -> !stockDtoList.contains(new StockDto(searchStock)))
 //                    convert to Stock object --> get history and meta data
-                    .map(searchStock ->
-//                            --> List interval and range
-                        getStockPriceHistoryAndMeta(searchStock.getSymbol(),"5m","1d", token)
-//                                --> List company name from searchStock object
-                                .setCompanyName(searchStock.getCompanyName()))
-                    .toList();
-
+                    .map(searchStock -> getStockPriceHistoryAndMeta(new StockDto(searchStock), "5m","1d", token))
+                    .toList());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        return stockDtoList;
     }
 
-    public Stock getStockPriceHistoryAndMeta(String symbol, String interval, String range, String token){
-        Response response = yahooFinanceClient.stockData(symbol, interval, range);
+    public StockDto getStockPriceHistoryAndMeta(StockDto stockDto, String interval, String range, String token){
+        Response response = yahooFinanceClient.stockData(stockDto.getSymbol(), interval, range);
         String responseBody = response.readEntity(String.class);
 
         try {
@@ -74,20 +88,21 @@ public class StockDataService {
 
             JsonNode previousClosePriceNode = metaNode.get("chartPreviousClose");
 
+            //if last previousClosePrice is not available
             Double previousClosePrice = 0.0;
             if(previousClosePriceNode != null){
                 previousClosePrice = mapper.readValue(previousClosePriceNode.traverse(), new TypeReference<Double>(){});
             }
 
-            Boolean isLiked = userRepository.isLiked(symbol, token);
+            Boolean isLiked = userRepository.isLiked(stockDto, token);
 
-            return new Stock(symbol, isLiked, currency, previousClosePrice, getPricePointList(rootNode));
+            return stockDto.setValues(isLiked, currency, previousClosePrice, getPricePointList(rootNode));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<PricePoint> getStockPriceHistory(String symbol, String interval, String range){
+    public List<PricePointDto> getStockPriceHistory(String symbol, String interval, String range){
         Response response = yahooFinanceClient.stockData(symbol, interval, range);
         String responseBody = response.readEntity(String.class);
 
@@ -100,7 +115,8 @@ public class StockDataService {
         }
     }
 
-    private List<PricePoint> getPricePointList(JsonNode rootNode) throws IOException {
+//    /////////////////////////
+    private List<PricePointDto> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
         if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>();
@@ -117,12 +133,23 @@ public class StockDataService {
         List<Double> closeList = mapper.readValue(closeNode.traverse(), new TypeReference<List<Double>>(){});
 
         //transform into list
-        List<PricePoint> pricePointList = new ArrayList<>();
+        List<PricePointDto> pricePointDtoList = new ArrayList<>();
 
         for(int i = 0; i < timestampList.size(); i++){
-            pricePointList.add(new PricePoint(timestampList.get(i), closeList.get(i)));
+
+            //eliminate null values missing information
+            if(closeList.get(i) == null){
+                if(i == 0){
+                    closeList.set(i, 0.0);
+                } else{
+                    closeList.set(i, closeList.get(i-1));
+
+                }
+            }
+
+            pricePointDtoList.add(new PricePointDto(timestampList.get(i), closeList.get(i)));
         }
 
-        return pricePointList;
+        return pricePointDtoList;
     }
 }

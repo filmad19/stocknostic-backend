@@ -1,7 +1,7 @@
 package at.kaindorf.models;
 
 import at.kaindorf.models.yahooResponse.SearchStock;
-import at.kaindorf.persistence.entity.StockEntity;
+import at.kaindorf.persistence.entity.UserStockEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,21 +20,17 @@ public class StockDto {
     private Double previousClosePrice;
     private List<PricePointDto> pricePointDtoList;
 
-    public StockDto(String symbol) {
-        this.symbol = symbol;
-    }
-
     public StockDto(SearchStock searchStock) {
         this.symbol = searchStock.getSymbol();
         this.companyName = searchStock.getCompanyName();
     }
 
-    public StockDto(StockEntity stockEntity) {
-        this.symbol = stockEntity.getSymbol();
-        this.companyName = stockEntity.getCompanyName();
+    public StockDto(UserStockEntity userStockEntity) {
+        this.symbol = userStockEntity.getStock().getSymbol();
+        this.companyName = userStockEntity.getStock().getCompanyName();
     }
 
-    public StockDto setValues(Boolean isLiked, String currency, Double previousClosePrice, List<PricePointDto> pricePointDtoList){
+    public StockDto withValues(Boolean isLiked, String currency, Double previousClosePrice, List<PricePointDto> pricePointDtoList){
         this.liked = isLiked;
         this.currency = currency;
         this.previousClosePrice = previousClosePrice;

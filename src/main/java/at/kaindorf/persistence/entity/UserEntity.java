@@ -1,12 +1,8 @@
 package at.kaindorf.persistence.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -16,15 +12,6 @@ import java.util.Set;
 @Table(name = "app_user")
 public class UserEntity {
     @Id
-    @Column(name = "access_token", unique = true)
+    @Column(name = "access_token")
     private String accessToken;
-
-    @ManyToMany
-    @Column(name = "liked_stocks")
-    private Set<StockEntity> likedStocksList;
-
-    public UserEntity(String accessToken) {
-        this.accessToken = accessToken;
-        this.likedStocksList = new HashSet<>();
-    }
 }

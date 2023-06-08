@@ -65,7 +65,7 @@ public class StockDataService {
 //                    filter out stocks, which are already there
                     .filter(stockDto -> !stockDtoList.contains(stockDto))
 //                    convert to Stock object --> get history and meta data
-                    .map(stockDto -> getStockPriceHistoryAndMeta(stockDto, "5m","1d", token))
+                    .map(stockDto -> getStockPriceHistoryAndMeta(stockDto, "1h","1d", token))
                     .toList());
         } catch (IOException e) {
             throw new RuntimeException(e);

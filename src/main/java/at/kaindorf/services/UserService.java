@@ -16,7 +16,16 @@ public class UserService {
     @Inject
     UserRepository userRepository;
 
-    public Token createAccessToken(){
+    public Token login(String access_token){
+
+        if(userExists(access_token)){
+            return new Token(access_token);
+        } else {
+            return createAccessToken();
+        }
+    }
+
+    private Token createAccessToken(){
         String generatedToken;
         byte[] bytes = new byte[36];
 

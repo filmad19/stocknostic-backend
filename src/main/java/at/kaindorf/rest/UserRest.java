@@ -5,9 +5,7 @@ import at.kaindorf.services.UserService;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("/login")
@@ -18,9 +16,8 @@ public class UserRest {
     UserService userService;
 
     @GET
-    @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
-    public Token createAccessToken(){
-        return userService.createAccessToken();
+    public Token login(@HeaderParam("access_token") String access_token){
+        return userService.login(access_token);
     }
 }

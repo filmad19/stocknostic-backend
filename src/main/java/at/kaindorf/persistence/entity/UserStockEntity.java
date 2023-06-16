@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+/*
+ * Matthias Filzmaier
+ * 06.05.2023
+ * stocknostic
+*/
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +20,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "user_stock",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"access_token", "symbol"}, name = "user_stock_uk")})
+// store the liked stocks and the rsi settings
 public class UserStockEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

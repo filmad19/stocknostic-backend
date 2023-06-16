@@ -5,16 +5,18 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/*
+ * Matthias Filzmaier
+ * 14.03.2023
+ * stocknostic
+ */
+
 @Data
-//@AllArgsConstructor
 @NoArgsConstructor
+// single price at a certain time
 public class PricePointDto {
     private LocalDateTime timestamp;
-//    private Double open;
-//    private Double high;
-//    private Double low;
     private Double close;
-//    private Long volume;
     private Double rsi;
 
 

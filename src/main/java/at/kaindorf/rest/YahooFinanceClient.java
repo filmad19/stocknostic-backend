@@ -7,7 +7,14 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/*
+ * Matthias Filzmaier
+ * 02.04.2023
+ * stocknostic
+ */
+
 @RegisterRestClient(configKey = "yahoo-finance-api")
+// requests to the YahooFinance API
 public interface YahooFinanceClient {
 
     @GET

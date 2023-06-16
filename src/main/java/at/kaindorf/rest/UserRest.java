@@ -8,6 +8,12 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+/*
+ * Matthias Filzmaier
+ * 21.04.2023
+ * stocknostic
+ */
+
 @Path("/login")
 @RequestScoped
 public class UserRest {

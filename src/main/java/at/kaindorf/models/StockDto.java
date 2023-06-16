@@ -9,9 +9,16 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Objects;
 
+/*
+ * Matthias Filzmaier
+ * 14.03.2023
+ * stocknostic
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+// stock to be send to the frontend
 public class StockDto {
     private String symbol;
     private String companyName;
@@ -30,6 +37,7 @@ public class StockDto {
         this.companyName = userStockEntity.getStock().getCompanyName();
     }
 
+    //set values and return resulting object
     public StockDto withValues(Boolean isLiked, String currency, Double previousClosePrice, List<PricePointDto> pricePointDtoList){
         this.liked = isLiked;
         this.currency = currency;

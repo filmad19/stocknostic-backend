@@ -20,6 +20,11 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Matthias Filzmaier
+ * 30.03.2023
+ * stocknostic
+ */
 
 @RequestScoped
 public class StockDataService {
@@ -42,7 +47,7 @@ public class StockDataService {
     public List<StockDto> searchStocks(String searchString, String token){
         List<StockDto> stockDtoList = new ArrayList<>();
 
-        //if the search field is empty
+        //if the search field is empty display the favourite stocks first
         if(searchString.isBlank()){
             stockDtoList.addAll(favouriteService.getFavouriteStockList(token));
 
@@ -50,21 +55,22 @@ public class StockDataService {
                 return stockDtoList;
             }
 
-            searchString = "a";
+            searchString = "a"; //if there are only 3 stocks fill the list with stocks beginning with a
         }
 
         Response response = yahooFinanceClient.search(searchString);
 
 
         try {
+            //read from "quotes" from the YahooFinance response
             String responseBody = response.readEntity(String.class);
             JsonNode quotesNode = mapper.readTree(responseBody).get("quotes");
 
             stockDtoList.addAll(mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){}).stream()
                     .map(StockDto::new)
-//                    filter out stocks, which are already there
+                    //filter out stocks, which are already there
                     .filter(stockDto -> !stockDtoList.contains(stockDto))
-//                    convert to Stock object --> get history and meta data
+                    //convert to Stock object --> get history and meta data (1h minimizes json length) (1d to get price points from this day)
                     .map(stockDto -> getStockPriceHistoryAndMeta(stockDto, "1h","1d", token))
                     .toList());
         } catch (IOException e) {
@@ -78,12 +84,14 @@ public class StockDataService {
         Response response = yahooFinanceClient.stockData(stockDto.getSymbol(), interval, range);
 
         try {
+            //get result
             String responseBody = response.readEntity(String.class);
             JsonNode rootNode = mapper.readTree(responseBody).get("chart").get("result").get(0);
 
             //get meta information
             JsonNode metaNode = rootNode.get("meta");
 
+            //get currency
             JsonNode currencyNode = metaNode.get("currency");
             String currency = mapper.readValue(currencyNode.traverse(), new TypeReference<String>(){});
 
@@ -120,17 +128,19 @@ public class StockDataService {
     private List<PricePointDto> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
-        if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>();
+        if(timestampNode == null || timestampNode.isEmpty()) return new ArrayList<>(); //if there are no price points
 
         //convert timestamps to list of DateTime
         List<LocalDateTime> timestampList = mapper.readValue(timestampNode.traverse(), new TypeReference<List<Integer>>(){})
                 .stream()
+                //convert timestamps to localDateTime
                 .map(integer -> LocalDateTime.ofInstant(Instant.ofEpochSecond(integer), ZoneId.of("CET")))
                 .toList();
 
         //get close prices
         JsonNode quoteNode = rootNode.get("indicators").get("quote").get(0);
         JsonNode closeNode = quoteNode.get("close");
+        //get close price list
         List<Double> closeList = mapper.readValue(closeNode.traverse(), new TypeReference<List<Double>>(){});
 
         //transform into list

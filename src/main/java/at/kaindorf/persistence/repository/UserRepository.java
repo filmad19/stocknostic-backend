@@ -7,6 +7,12 @@ import io.quarkus.security.UnauthorizedException;
 import javax.enterprise.context.RequestScoped;
 import javax.transaction.Transactional;
 
+/*
+ * Matthias Filzmaier
+ * 14.03.2023
+ * stocknostic
+ */
+
 @RequestScoped
 public class UserRepository implements PanacheRepository<UserEntity> {
 
@@ -14,7 +20,7 @@ public class UserRepository implements PanacheRepository<UserEntity> {
         UserEntity userEntity = find("accessToken", userAccessToken).firstResult();
 
         if(userEntity == null){
-            throw new UnauthorizedException();
+            throw new UnauthorizedException(); //if there is no user with this accessToken
         }
 
         return userEntity;
@@ -25,7 +31,7 @@ public class UserRepository implements PanacheRepository<UserEntity> {
     public String addUser(String generatedToken) {
         UserEntity userEntity = new UserEntity(generatedToken);
 
-        persist(userEntity);
+        persist(userEntity); //add new User into database
         return userEntity.getAccessToken();
     }
 }

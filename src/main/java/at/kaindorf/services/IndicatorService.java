@@ -6,17 +6,25 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.util.List;
 
+/*
+ * Matthias Filzmaier
+ * 06.05.2023
+ * stocknostic
+ */
+
 @RequestScoped
 public class IndicatorService {
 
     @Inject
     StockDataService stockDataService;
 
+//    calculate rsi for every pricepoint
+//    original plan was to display the rsi in the graph
     public PricePointDto calculateRSI(String symbol) {
 
-        List<PricePointDto> pricePointDtoList = stockDataService.getStockPriceHistory(symbol, "1d", "34d");
+        List<PricePointDto> pricePointDtoList = stockDataService.getStockPriceHistory(symbol, "1d", "20d"); //
 
-        int windowSize = 14;
+        int windowSize = 14; //default window size of 14 days
 
         // Calculate RSI for each PricePoint
         for (int i = windowSize; i < pricePointDtoList.size(); i++) {
@@ -25,26 +33,24 @@ public class IndicatorService {
 
             // Calculate average gain and loss over the last 14 PricePoints
             for (int j = i - windowSize + 1; j <= i; j++) {
-                double priceDifference = pricePointDtoList.get(j).getClose() - pricePointDtoList.get(j - 1).getClose();
+                double priceDifference = pricePointDtoList.get(j).getClose() - pricePointDtoList.get(j - 1).getClose(); //get price difference between two days
 
                 if (priceDifference >= 0) {
-                    sumGain += priceDifference;
+                    sumGain += priceDifference; // sum up gains
                 } else {
-                    sumLoss += Math.abs(priceDifference);
+                    sumLoss += Math.abs(priceDifference); // sum up losses
                 }
             }
 
-            double averageGain = sumGain / windowSize;
-            double averageLoss = sumLoss / windowSize;
+            double averageGain = sumGain / windowSize; //calculate average gain
+            double averageLoss = sumLoss / windowSize; //calculate average loss
 
-            // Calculate relative strength (RS) and relative strength index (RSI)
-            double rs = averageGain / averageLoss;
-            double rsi = 100 - (100 / (1 + rs));
+            double rs = averageGain / averageLoss;// Calculate relative strength
+            double rsi = 100 - (100 / (1 + rs)); // relative strength index
 
-            // Set the calculated RSI value for the current PricePoint
-            pricePointDtoList.get(i).setRsi(rsi);
+            pricePointDtoList.get(i).setRsi(rsi); //set value for current price point
         }
 
-        return pricePointDtoList.get(pricePointDtoList.size()-1);
+        return pricePointDtoList.get(pricePointDtoList.size()-1); //only return the rsi from the last day
     }
 }

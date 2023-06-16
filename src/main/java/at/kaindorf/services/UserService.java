@@ -9,6 +9,12 @@ import javax.inject.Inject;
 import java.util.HexFormat;
 import java.util.Random;
 
+/*
+ * Matthias Filzmaier
+ * 21.04.2023
+ * stocknostic
+ */
+
 @RequestScoped
 public class UserService {
     private static final Random RANDOM = new Random();
@@ -19,9 +25,9 @@ public class UserService {
     public Token login(String access_token){
 
         if(userExists(access_token)){
-            return new Token(access_token);
+            return new Token(access_token); //if user exists return the existing token
         } else {
-            return createAccessToken();
+            return createAccessToken(); //if user does not exist create a new User
         }
     }
 
@@ -31,11 +37,12 @@ public class UserService {
 
         do{
             RANDOM.nextBytes(bytes);
+            //generate random string
             generatedToken = HexFormat.of().formatHex(bytes);
 
-        } while(userExists(generatedToken));
+        } while(userExists(generatedToken));//make sure the token is unique
 
-        return new Token(userRepository.addUser(generatedToken));
+        return new Token(userRepository.addUser(generatedToken)); //add the user
     }
 
     private Boolean userExists(String generatedToken){

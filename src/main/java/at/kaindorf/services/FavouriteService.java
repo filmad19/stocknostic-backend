@@ -7,6 +7,12 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.util.List;
 
+/*
+ * Matthias Filzmaier
+ * 21.04.2023
+ * stocknostic
+ */
+
 @RequestScoped
 public class FavouriteService {
 
@@ -18,7 +24,7 @@ public class FavouriteService {
 
     public List<StockDto> getFavouriteStockList(String token){
         return userStockRepository.getFavouriteStockList(token).stream()
-                .map(stock -> stockDataService.getStockPriceHistoryAndMeta(stock, "5m", "1d", token))
+                .map(stock -> stockDataService.getStockPriceHistoryAndMeta(stock, "5m", "1d", token)) //add price points and meta data
                 .toList();
     }
 

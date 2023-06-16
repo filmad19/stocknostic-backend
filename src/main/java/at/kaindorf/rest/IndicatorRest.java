@@ -11,19 +11,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+/*
+ * Matthias Filzmaier
+ * 06.05.2023
+ * stocknostic
+ */
+
 @Path("/indicator")
 @RequestScoped
 public class IndicatorRest {
 
     @Inject
     IndicatorService indicatorService;
-
-//    @GET
-//    @Path("/recommendation")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response getRecommendation(@QueryParam("symbol") String symbol){
-//        return Response.ok(indicatorService.getRecommendation(symbol)).build();
-//    }
 
     @GET
     @Path("/rsi")

@@ -7,12 +7,19 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+/*
+ * Matthias Filzmaier
+ * 24.03.2023
+ * stocknostic
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 
 @Entity
 @Table(name = "stock")
+// Database Entity to store symbol and company name, because only the search YahooFinance endpoints sends the companyName
 public class StockEntity {
     @Id
     @Column(name = "symbol")

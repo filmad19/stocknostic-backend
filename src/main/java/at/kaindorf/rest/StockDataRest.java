@@ -9,6 +9,12 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import java.util.List;
 
+/*
+ * Matthias Filzmaier
+ * 24.03.2023
+ * stocknostic
+ */
+
 @Path("/stock")
 @RequestScoped
 public class StockDataRest {
@@ -20,7 +26,6 @@ public class StockDataRest {
     @Path("/search")
     public List<StockDto> searchStocks(@QueryParam("q") String searchString,
                                       @HeaderParam("access_token") String token) {
-
         return stockDataService.searchStocks(searchString, token);
     }
 

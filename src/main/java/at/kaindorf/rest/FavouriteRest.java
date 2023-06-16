@@ -9,6 +9,11 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
+/*
+ * Matthias Filzmaier
+ * 08.05.2023
+ * stocknostic
+ */
 
 @Path("/favourite")
 @RequestScoped

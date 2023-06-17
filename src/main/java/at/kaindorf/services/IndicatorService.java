@@ -1,6 +1,8 @@
 package at.kaindorf.services;
 
 import at.kaindorf.models.PricePointDto;
+import at.kaindorf.models.RsiSettingsDto;
+import at.kaindorf.persistence.repository.UserStockRepository;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -17,6 +19,9 @@ public class IndicatorService {
 
     @Inject
     StockDataService stockDataService;
+
+    @Inject
+    UserStockRepository userStockRepository;
 
 //    calculate rsi for every pricepoint
 //    original plan was to display the rsi in the graph
@@ -52,5 +57,14 @@ public class IndicatorService {
         }
 
         return pricePointDtoList.get(pricePointDtoList.size()-1); //only return the rsi from the last day
+    }
+
+
+    public void setRsiSettings(String token, RsiSettingsDto settingsDto, String symbol){
+        userStockRepository.setRsiSettings(token, settingsDto, symbol);
+    }
+
+    public RsiSettingsDto getRsiSettings(String token, String symbol){
+        return userStockRepository.getRsiSettings(token, symbol);
     }
 }

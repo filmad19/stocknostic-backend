@@ -34,3 +34,11 @@ start the frontend using the GUI or go into the console in the frontend folder a
 ```shell script
 \projects\stocknostic\stocknostic-frontend> ionic serve
 ```
+
+the browser should be opened automatically. If to search for http://localhost:8100/ to see the webApp.
+Press F12, make the view responsive and select a phone to see the app
+
+Now everything should work!
+--
+American stock markets are opened at 15:30 our time. So you migth not see the live update of the stocks.
+Therefore we recommend searching crypto currencies (e.g. BTC-USD) to see this feature.

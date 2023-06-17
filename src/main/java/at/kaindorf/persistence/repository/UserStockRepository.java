@@ -1,5 +1,6 @@
 package at.kaindorf.persistence.repository;
 
+import at.kaindorf.models.RsiSettingsDto;
 import at.kaindorf.models.StockDto;
 import at.kaindorf.persistence.entity.StockEntity;
 import at.kaindorf.persistence.entity.UserEntity;
@@ -58,5 +59,33 @@ public class UserStockRepository implements PanacheRepository<UserStockEntity> {
     public void removeStockFromFavourite(String symbol, String token){
         UserStockEntity userStockEntity = find("symbol = ?1 and access_token = ?2", symbol, token).firstResult();
         delete(userStockEntity); //remove liked stock
+    }
+
+
+    @Transactional
+    public void setRsiSettings(String token, RsiSettingsDto settingsDto, String symbol){
+        Integer overbought = settingsDto.getOverbought();
+        Integer oversold = settingsDto.getOversold();
+
+        UserStockEntity userStockEntity = find("symbol = ?1 and access_token = ?2", symbol, token).firstResult();
+
+        if(overbought != null){
+            userStockEntity.setRsiOverbought(overbought);
+        }
+        if(oversold != null){
+            userStockEntity.setRsiOversold(oversold);
+        }
+        persist(userStockEntity);
+    }
+
+    @Transactional
+    public RsiSettingsDto getRsiSettings(String token, String symbol){
+        UserStockEntity userStockEntity = find("symbol = ?1 and access_token = ?2", symbol, token).firstResult();
+
+        if(userStockEntity != null){
+            return new RsiSettingsDto(userStockEntity.getRsiOverbought(), userStockEntity.getRsiOversold());
+        }
+
+        return new RsiSettingsDto(rsiOverboughtDefault, rsiOversoldDefault);
     }
 }

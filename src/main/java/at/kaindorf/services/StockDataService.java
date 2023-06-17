@@ -44,6 +44,7 @@ public class StockDataService {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); //ignore json values not used in java;
 
 
+    //use search request to get list of stocks, then for every stock use method getStockPriceHistoryAndMeta with stockData request to get price points and meta data
     public List<StockDto> searchStocks(String searchString, String token){
         List<StockDto> stockDtoList = new ArrayList<>();
 
@@ -80,6 +81,7 @@ public class StockDataService {
         return stockDtoList;
     }
 
+    //get price points and meta data from stockData request
     public StockDto getStockPriceHistoryAndMeta(StockDto stockDto, String interval, String range, String token){
         Response response = yahooFinanceClient.stockData(stockDto.getSymbol(), interval, range);
 
@@ -111,6 +113,7 @@ public class StockDataService {
         }
     }
 
+    //only get price points from stockData request (detailed view 1w, 1m...)
     public List<PricePointDto> getStockPriceHistory(String symbol, String interval, String range){
         Response response = yahooFinanceClient.stockData(symbol, interval, range);
         String responseBody = response.readEntity(String.class);
@@ -124,7 +127,7 @@ public class StockDataService {
         }
     }
 
-//    /////////////////////////
+    //extracts price points out of a JsonNode from the stockData request
     private List<PricePointDto> getPricePointList(JsonNode rootNode) throws IOException {
         JsonNode timestampNode = rootNode.get("timestamp");
 
@@ -154,10 +157,8 @@ public class StockDataService {
                     closeList.set(i, 0.0);
                 } else{
                     closeList.set(i, closeList.get(i-1));
-
                 }
             }
-
             pricePointDtoList.add(new PricePointDto(timestampList.get(i), closeList.get(i)));
         }
 

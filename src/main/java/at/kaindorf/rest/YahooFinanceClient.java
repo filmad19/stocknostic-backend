@@ -20,11 +20,13 @@ public interface YahooFinanceClient {
     @GET
     @Path("/v1/finance/search")
     @Produces(MediaType.APPLICATION_JSON)
+    //search endpoint (symbol, company name)
     Response search(@QueryParam("q") String searchString);
 
     @GET
     @Path("/v8/finance/chart/{symbol}")
     @Produces(MediaType.APPLICATION_JSON)
+    //get meta data and price points (symbol, price points, currency, last closing price)
     Response stockData(@PathParam("symbol") String symbol,
                     @QueryParam("interval") String interval,
                     @QueryParam("range") String range);

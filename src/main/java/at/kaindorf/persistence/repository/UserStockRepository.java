@@ -69,12 +69,8 @@ public class UserStockRepository implements PanacheRepository<UserStockEntity> {
 
         UserStockEntity userStockEntity = find("symbol = ?1 and access_token = ?2", symbol, token).firstResult();
 
-        if(overbought != null){
-            userStockEntity.setRsiOverbought(overbought);
-        }
-        if(oversold != null){
-            userStockEntity.setRsiOversold(oversold);
-        }
+        userStockEntity.setRsiOverbought(overbought);
+        userStockEntity.setRsiOversold(oversold);
         persist(userStockEntity);
     }
 

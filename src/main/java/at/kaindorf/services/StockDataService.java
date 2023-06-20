@@ -46,39 +46,28 @@ public class StockDataService {
 
     //use search request to get list of stocks, then for every stock use method getStockPriceHistoryAndMeta with stockData request to get price points and meta data
     public List<StockDto> searchStocks(String searchString, String token){
-        List<StockDto> stockDtoList = new ArrayList<>();
+//        List<StockDto> stockDtoList = new ArrayList<>();
 
         //if the search field is empty display the favourite stocks first
         if(searchString.isBlank()){
-            stockDtoList.addAll(favouriteService.getFavouriteStockList(token));
-
-            if(stockDtoList.size() > 3){
-                return stockDtoList;
-            }
-
-            searchString = "a"; //if there are only 3 stocks fill the list with stocks beginning with a
+            return favouriteService.getFavouriteStockList(token);
         }
 
         Response response = yahooFinanceClient.search(searchString);
-
 
         try {
             //read from "quotes" from the YahooFinance response
             String responseBody = response.readEntity(String.class);
             JsonNode quotesNode = mapper.readTree(responseBody).get("quotes");
 
-            stockDtoList.addAll(mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){}).stream()
+            return mapper.readValue(quotesNode.traverse(), new TypeReference<List<SearchStock>>(){}).stream()
                     .map(StockDto::new)
-                    //filter out stocks, which are already there
-                    .filter(stockDto -> !stockDtoList.contains(stockDto))
                     //convert to Stock object --> get history and meta data (1h minimizes json length) (1d to get price points from this day)
                     .map(stockDto -> getStockPriceHistoryAndMeta(stockDto, "1h","1d", token))
-                    .toList());
+                    .toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return stockDtoList;
     }
 
     //get price points and meta data from stockData request
